@@ -92,6 +92,9 @@ class _TtsHomePageState extends State<TtsHomePage> {
   bool _cancelRequested = false;
   String? _outDir;
 
+  int get _doneCount =>
+      _segments.where((s) => s.status == SegStatus.done).length;
+
   @override
   void dispose() {
     _controller.dispose();
@@ -422,6 +425,7 @@ class _TtsHomePageState extends State<TtsHomePage> {
                             onReveal: () => _reveal(_segments[i].filePath),
                             onRetry: () => _retryOne(i),
                           ),
+                        if (doneCount > 0) _BottomBar(enabled: true),
                       ],
                     );
                   }
@@ -482,6 +486,10 @@ class _TtsHomePageState extends State<TtsHomePage> {
                                 onReveal: () {},
                                 onRetry: () {},
                               ),
+                            _BottomBar(
+                              enabled: false,
+                              count: preview.length,
+                            ),
                           ],
                         ),
                       ),
@@ -489,34 +497,6 @@ class _TtsHomePageState extends State<TtsHomePage> {
                   );
                 },
               ),
-              if (doneCount > 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: _downloadZip,
-                          icon: const Icon(Icons.download_outlined, size: 18),
-                          label: Text(
-                            'Tải tất cả ($doneCount)',
-                            style: const TextStyle(
-                                fontFeatures: [
-                                  FontFeature.tabularFigures()
-                                ]),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton.icon(
-                        onPressed: _openFolder,
-                        icon: const Icon(
-                            Icons.folder_open_outlined, size: 18),
-                        label: const Text('Mở thư mục'),
-                      ),
-                    ],
-                  ),
-                ),
             ],
           ),
         ),
@@ -625,6 +605,12 @@ class _SegmentRow extends StatelessWidget {
               onPressed: onReveal,
             ),
           ],
+          if (seg.status == SegStatus.pending)
+            const IconButton(
+              tooltip: 'Chưa tạo audio',
+              icon: Icon(Icons.download_outlined),
+              onPressed: null,
+            ),
           if (failed)
             IconButton(
                               tooltip: 'Thử lại',
@@ -651,5 +637,48 @@ class _SegmentRow extends StatelessWidget {
   String _kb(int? bytes) {
     if (bytes == null) return '';
     return '${(bytes / 1024).toStringAsFixed(0)} KB';
+  }
+}
+
+class _BottomBar extends StatelessWidget {
+  final bool enabled;
+  final int? count;
+
+  const _BottomBar({
+    required this.enabled,
+    this.count,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // ponytail: State doc tue, khong truyen callback loang ngoang.
+    final home = context.findAncestorStateOfType<_TtsHomePageState>()!;
+    final n = count ?? home._doneCount;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: FilledButton.icon(
+              onPressed: enabled ? home._downloadZip : null,
+              icon: const Icon(Icons.download_outlined, size: 18),
+              label: Text(
+                'Tải tất cả ($n)',
+                style: const TextStyle(
+                    fontFeatures: [FontFeature.tabularFigures()]),
+              ),
+            ),
+          ),
+          if (enabled) ...[
+            const SizedBox(width: 8),
+            OutlinedButton.icon(
+              onPressed: home._openFolder,
+              icon: const Icon(Icons.folder_open_outlined, size: 18),
+              label: const Text('Mở thư mục'),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }
