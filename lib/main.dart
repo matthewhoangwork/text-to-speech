@@ -331,11 +331,11 @@ class _TtsHomePageState extends State<TtsHomePage> {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText:
-                                'Hello\nMy name is Matthew\nXin chào bạn',
+                                'Hello\nMy name is Matthew\nXin chào bạn\n안녕하세요',
                             hintStyle: const TextStyle(color: Color(0xFFB4ADA0)),
                               helperText: n == 0
                                 ? 'Paste text vào đây'
-                                : '$n đoạn • tự động chọn giọng Anh/Việt',
+                                : '$n đoạn • tự động chọn giọng Anh/Việt/Hàn',
                             helperStyle: const TextStyle(color: _muted),
                           ),
                           style: const TextStyle(fontSize: 15, height: 1.5),
@@ -624,7 +624,11 @@ class _SegmentRow extends StatelessWidget {
   }
 
   String _metaLine() {
-    final voice = segment.voice == viVoice ? 'Giọng Việt' : 'Giọng Anh';
+    final voice = segment.voice == viVoice
+        ? 'Giọng Việt'
+        : segment.voice == koVoice
+            ? 'Giọng Hàn'
+            : 'Giọng Anh';
     return switch (segment.status) {
       SegStatus.pending => voice,
       SegStatus.loading => 'Đang tạo…',

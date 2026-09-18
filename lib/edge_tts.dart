@@ -32,6 +32,7 @@ const String _origin =
 /// Voice fix cung theo spec.
 const String viVoice = 'vi-VN-HoaiMyNeural';
 const String enVoice = 'en-US-AriaNeural';
+const String koVoice = 'ko-KR-SunHiNeural';
 
 final _uuid = Uuid();
 final _rand = Random.secure();
@@ -43,9 +44,12 @@ List<String> splitSegments(String input) => input
     .where((s) => s.isNotEmpty)
     .toList();
 
-/// Co dau tieng Viet -> voice Viet, con lai voice Anh.
-String detectVoice(String segment) =>
-    RegExp(r'[à-ỹÀ-ỸđĐ]').hasMatch(segment) ? viVoice : enVoice;
+/// Co dau tieng Viet -> voice Viet, co Hangul -> voice Han, con lai voice Anh.
+String detectVoice(String segment) {
+  if (RegExp(r'[à-ỹÀ-ỸđĐ]').hasMatch(segment)) return viVoice;
+  if (RegExp(r'[가-힣ㄱ-ㅎㅏ-ㅣ]').hasMatch(segment)) return koVoice;
+  return enVoice;
+}
 
 /// Service khong chiu cac control char -> thay bang space (giong edge-tts).
 String sanitize(String s) => s.split('').map((c) {
