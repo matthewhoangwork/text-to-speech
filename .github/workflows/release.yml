@@ -1,0 +1,63 @@
+name: Build release artifacts
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.0'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build macos --release
+      - run: |
+          hdiutil create -volname "Lazy Speech Tool" \
+            -srcfolder "build/macos/Build/Products/Release/Lazy Speech Tool.app" \
+            -ov -format UDZO LazySpeechTool-macOS-arm64.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: LazySpeechTool-macOS-arm64.dmg
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.0'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - run: Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath LazySpeechTool-Windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: LazySpeechTool-Windows-x64.zip
+
+  release-latest:
+    needs: [build-macos, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - run: |
+          ls artifacts/*/*
+          gh release delete latest --cleanup-tag -y || true
+          gh release create latest artifacts/*/* \
+            --title "Latest build (main)" \
+            --notes "Tu dong build moi khi merge vao main. macOS arm64 + Windows x64." \
+            --prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
