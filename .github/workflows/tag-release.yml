@@ -1,0 +1,63 @@
+name: Tag release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build macos --release
+      - run: |
+          hdiutil create -volname "Lazy Speech Tool" \
+            -srcfolder "build/macos/Build/Products/Release/Lazy Speech Tool.app" \
+            -ov -format UDZO LazySpeechTool-macOS-arm64.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: LazySpeechTool-macOS-arm64.dmg
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - run: Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath LazySpeechTool-Windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: LazySpeechTool-Windows-x64.zip
+
+  publish:
+    needs: [build-macos, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - run: |
+          gh release create "$TAG" artifacts/*/* \
+            --title "$TAG" \
+            --notes "Lazy Speech Tool $TAG. macOS arm64 (.dmg) + Windows x64 (.zip, giai nen chay exe)." \
+            --latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
