@@ -408,42 +408,87 @@ class _TtsHomePageState extends State<TtsHomePage> {
                 ),
               ),
               const SizedBox(height: 16),
-              if (_segments.isEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 48),
-                  child: const Column(
-                    children: [
-                      Icon(
-                        Icons.audio_file_outlined,
-                        size: 44,
-                        color: Color(0xFFC9C2B4),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _controller,
+                builder: (context, value, _) {
+                  if (_segments.isNotEmpty) {
+                    return Column(
+                      children: [
+                        for (var i = 0; i < _segments.length; i++)
+                          _SegmentRow(
+                            index: i,
+                            segment: _segments[i],
+                            onPlay: () => _play(_segments[i].filePath),
+                            onReveal: () => _reveal(_segments[i].filePath),
+                            onRetry: () => _retryOne(i),
+                          ),
+                      ],
+                    );
+                  }
+                  final preview = splitSegments(value.text)
+                      .map((t) => Segment(t, detectVoice(t)))
+                      .toList();
+                  if (preview.isEmpty) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 48),
+                      child: const Column(
+                        children: [
+                          Icon(
+                            Icons.audio_file_outlined,
+                            size: 44,
+                            color: Color(0xFFC9C2B4),
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'Chưa có đoạn nào',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: _muted,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Nhập text ở trên, bấm Tạo audio',
+                            style: TextStyle(fontSize: 13, color: _muted),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 12),
-                      Text(
-                        'Chưa có đoạn nào',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: _muted,
+                    );
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 8),
+                        child: Text(
+                          'Xem trước ${preview.length} đoạn — chưa tạo audio',
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: _muted,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
                         ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Nhập text ở trên, bấm Tạo audio',
-                        style: TextStyle(fontSize: 13, color: _muted),
+                      Opacity(
+                        opacity: 0.7,
+                        child: Column(
+                          children: [
+                            for (var i = 0; i < preview.length; i++)
+                              _SegmentRow(
+                                index: i,
+                                segment: preview[i],
+                                onPlay: () {},
+                                onReveal: () {},
+                                onRetry: () {},
+                              ),
+                          ],
+                        ),
                       ),
                     ],
-                  ),
-                )
-              else
-                for (var i = 0; i < _segments.length; i++)
-                  _SegmentRow(
-                    index: i,
-                    segment: _segments[i],
-                    onPlay: () => _play(_segments[i].filePath),
-                    onReveal: () => _reveal(_segments[i].filePath),
-                    onRetry: () => _retryOne(i),
-                  ),
+                  );
+                },
+              ),
               if (doneCount > 0)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
