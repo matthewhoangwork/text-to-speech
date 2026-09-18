@@ -1,0 +1,6 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
+#include "ephemeral/Flutter-Generated.xcconfig"
+// ponytail: Xcode 27 lipo -verify_arch chi nhan 1 arch, Flutter 3.35 truyen
+// "arm64 x86_64" -> fail. Ship arm64 truoc (Intel Mac hiem), universal sau.
+ARCHS=arm64
+ONLY_ACTIVE_ARCH=YES

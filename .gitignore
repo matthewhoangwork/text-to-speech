@@ -1,0 +1,21 @@
+# Flutter
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+.idea/
+*.iml
+.DS_Store
+
+# macOS Pods (regen via pod install)
+/macos/Pods/
+/macos/Flutter/ephemeral/
+
+# Windows build outputs
+/windows/flutter/ephemeral/
+
+# Misc
+*.log
