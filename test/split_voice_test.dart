@@ -2,10 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tts_tool/edge_tts.dart';
 
 void main() {
-  test('split ; bo rong + trim', () {
-    expect(splitSegments('a; b ;;c;'), ['a', 'b', 'c']);
+  test('split xuong dong, bo dong trang + trim', () {
+    expect(splitSegments('a\nb\n\nc\n'), ['a', 'b', 'c']);
+    expect(splitSegments('a\r\nb\r\n'), ['a', 'b']);
     expect(splitSegments(''), isEmpty);
-    expect(splitSegments(';;;'), isEmpty);
+    expect(splitSegments('\n\n'), isEmpty);
   });
 
   test('detect voice theo dau tieng Viet', () {

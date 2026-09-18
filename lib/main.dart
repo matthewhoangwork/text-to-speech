@@ -113,7 +113,7 @@ class _TtsHomePageState extends State<TtsHomePage> {
         .map((t) => Segment(t, detectVoice(t)))
         .toList();
     if (segs.isEmpty) {
-      _snack('Paste text, cách nhau bằng dấu ; trước.');
+      _snack('Paste text, mỗi dòng một đoạn.');
       return;
     }
     if (segs.length > 100) {
@@ -298,7 +298,7 @@ class _TtsHomePageState extends State<TtsHomePage> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'Edge TTS — mỗi đoạn cách nhau bằng dấu chấm phẩy',
+                          'Edge TTS — mỗi dòng một đoạn',
                           style:
                               TextStyle(fontSize: 13.5, color: _muted),
                         ),
@@ -328,7 +328,7 @@ class _TtsHomePageState extends State<TtsHomePage> {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText:
-                                'Hello; My name is Matthew; Xin chào bạn',
+                                'Hello\nMy name is Matthew\nXin chào bạn',
                             hintStyle: const TextStyle(color: Color(0xFFB4ADA0)),
                               helperText: n == 0
                                 ? 'Paste text vào đây'

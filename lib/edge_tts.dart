@@ -36,9 +36,9 @@ const String enVoice = 'en-US-AriaNeural';
 final _uuid = Uuid();
 final _rand = Random.secure();
 
-/// Tach text thanh doan theo `;`, trim, bo rong.
+/// Tach text thanh doan theo xuong dong, trim, bo dong trang.
 List<String> splitSegments(String input) => input
-    .split(';')
+    .split('\n')
     .map((s) => s.trim())
     .where((s) => s.isNotEmpty)
     .toList();
