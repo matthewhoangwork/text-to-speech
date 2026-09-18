@@ -55,6 +55,10 @@ add_subdirectory("runner")
 
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
+# ponytail: VS2026 bien <experimental/coroutine> thanh loi cung, plugin cu
+# (audioplayers_windows) chua migrate. Macro nay do Microsoft chi dinh de
+# suppress, giu lock cu build duoc.
+add_compile_definitions(_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
 include(flutter/generated_plugins.cmake)
 
 
